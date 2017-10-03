@@ -1,0 +1,113 @@
+#include <DDS.h>
+
+const int W_CLK = 11;
+const int FQ_UD = 12; 
+const int DATA = 9;
+const int RESET = 8;
+
+double freq = 40000;
+double no_freq = 0;
+
+  // Instantiate the DDS...
+  DDS dds(W_CLK, FQ_UD, DATA, RESET);
+
+//Inisiasi pin receiver
+int sensorPin1 = 4; //DigitalPin 4 for Receiver1
+int sensorPin2 = 5; //DigitalPin 5 for Receiver2
+  int sensorValue1 = 0;
+  int sensorValue2 = 0;
+  
+//Deklarasi tombol start dan lampu indikator
+const int buttonPin = 6; //Start button pin 6    
+const int ledPin =  3;   //LED indikator pin 3  
+
+//Variables
+int buttonState = 0;
+int flag=0;
+
+//int interrupt13;
+//int TF;
+//int Receiver1, Receiver2;
+
+void setup() {
+  Serial.begin(9600);
+
+  // start up the DDS...   
+  dds.init();  
+  // (Optional) trim if your xtal is not at 125MHz...
+  dds.trim(125000000); // enter actual osc freq 
+  
+  //Input or output?
+  pinMode(ledPin, OUTPUT);      
+  pinMode(buttonPin, INPUT_PULLUP);   
+}
+
+void loop(){
+  //Read button state (pressed or not pressed?)
+  buttonState = digitalRead(buttonPin);
+
+  //Read receiver pin (whether there are pulses or none)
+  //Receiver1 = digitalRead(sensorPin1);
+  //Receiver2 = digitalRead(sensorPin2);
+  //interrupt13 = digitalRead(ledPin);
+  ////float voltage1 = (sensorValue1/3.3) * 4095;
+  ////float voltage2 = (sensorValue2/3.3) * 4095;
+  
+  //If button pressed...
+  if (buttonState == LOW) { 
+    //...ones, turn led on!
+    if ( flag == 0){
+      dds.setFrequency(freq);
+      digitalWrite(ledPin, HIGH);
+      Serial.println("Transmitting...");
+      flag=1; //change flag variable
+    }
+    //...twice, turn led off!
+    else if ( flag == 1){
+      dds.setFrequency(no_freq);
+      digitalWrite(ledPin, LOW);
+      flag=0; //change flag variable again 
+    }    
+  }
+  delay(100); //Small delay
+} //End loop
+
+/*
+  void startTimer(){
+  start = micros();
+  TF++;
+}
+
+void Time1(){ //Waktu tempuh pada Receiver1
+  time1 = micros();
+  TF++;
+}
+
+void Time2(){ //Waktu tempuh pada Receiver2
+  time2 = micros();
+  TF++;  
+}
+
+void displayResult(){
+  T1 = time1 - start; // selisih waktu micro saat sebelum dan sesudah disimpan dalam variabel
+  usReceiver1 = T1;   // memasukkan variabel selisih ke variabel baru untuk perhitungan
+
+  T2 = time2 - start;
+  usReceiver2 = T2;
+
+  if (T2 > T1){
+  deltaT = T2 - T1;
+  }
+  else if (T1 > T2){
+  deltaT = T1 - T2;
+  }
+  else{
+  deltaT = 0;  
+  }
+  
+  Serial.print("TimeR1= "); Serial.print(usReceiver1); Serial.println(" us");   
+  Serial.print("TimeR2= "); Serial.print(usReceiver2); Serial.println(" us");
+  Serial.print("deltaT= "); Serial.print(deltaT); Serial.println(" us");   
+
+}
+ */
